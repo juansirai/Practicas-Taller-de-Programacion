@@ -1,0 +1,179 @@
+{4. Una agencia dedicada a la venta de autos ha organizado su stock y, dispone en papel de la
+información de los autos en venta.
+Implementar un programa que:
+a. Genere un árbol binario de búsqueda ordenado por patente identificatoria del auto en
+venta. Cada nodo del árbol debe contener patente, año de fabricación (2010..2018), la
+marca y el modelo.
+b. Contenga un módulo que recibe el árbol generado en a) y una marca y devuelva la
+cantidad de autos de dicha marca que posee la agencia. Mostrar el resultado.
+c. Contenga un módulo que reciba el árbol generado en a) y retorne una estructura con la
+información de los autos agrupados por año de fabricación.
+d. Contenga un módulo que reciba el árbol generado en a) y una patente y devuelva el
+año de fabricación del auto con dicha patente. Mostrar el resultado.
+* 
+* }
+
+program adicionales;
+CONST
+	CORTE = 'ZZZ';
+TYPE
+	str30 = string[30];
+	anios = 2010..2018;
+	auto = record
+		patente:str30;
+		anio : anios;
+		marca: str30;
+		modelo: str30;
+	end;
+
+	arbol = ^nodo;
+	nodo = record
+		dato:auto;
+		HI:arbol;
+		HD:arbol;
+	end;
+	
+	lista = ^nodoL;
+	nodoL = record
+		dato: auto;
+		sig: lista;
+	end;
+	vectorListas = array[2010..2018] of lista;
+
+
+//-------a. Genere un árbol binario de búsqueda ordenado por patente -----------
+procedure leerAuto(var a:auto);
+begin
+	write('Patente: ');readln(a.patente);
+	if(a.patente <> CORTE) then begin
+		write('Anio: '); readln(a.anio);
+		write('Marca: ');readln(a.marca);
+		write('Modelo: ');readln(a.modelo);
+	end;
+end;
+
+procedure insertarNodo(var abb:arbol; a:auto);
+begin
+	if (abb = nil) then begin
+		new(abb);
+		abb^.dato:= a;
+		abb^.HI:=nil;
+		abb^.HD:= nil;
+	end
+	else begin
+		if (a.patente < abb^.dato.patente) then
+			insertarNodo(abb^.HI, a)
+		else
+			insertarNodo(abb^.HD, a);
+	end;
+end;
+
+procedure cargarArbol(var abb:arbol);
+var
+	a:auto;
+begin
+	leerAuto(a);
+	while(a.patente <> CORTE) do begin
+		insertarNodo(abb, a);
+		leerAuto(a);
+	end;
+	writeln('Arbol generado satisfactoriamente');
+end;
+
+// -b. Contenga un módulo que recibe el árbol generado en a) y una marca y devuelva la cantidad de autos de dicha marca que posee la agencia
+
+function contarMarca(abb:arbol; marca:str30):integer;
+begin
+	if(abb<>nil) then begin
+		if(abb^.dato.marca = marca) then
+			contarMarca:=1
+		else
+			contarMarca:=0;
+		contarMarca+=contarMarca(abb^.HI, marca);
+		contarMarca+=contarMarca(abb^.HD, marca);
+	end
+	else
+		contarMarca:=0;  //lo que devuelve cuando llega al final del arbol
+end;
+
+// -- c. Contenga un módulo que reciba el árbol generado en a) y retorne una estructura con la información de los autos agrupados por año de fabricación
+
+procedure insertarAtras(var l:lista; a:auto);
+var
+	nue, act: lista;
+begin
+	new(nue);
+	nue^.dato:=a;
+	nue^.sig:=nil;
+	if(l = nil) then
+		l:=nue
+	else begin
+		act:=l;
+		while(act^.sig<>nil) do
+			act:=act^.sig;
+		act^.sig:=nue;
+	end;
+end;
+
+procedure generarVector(var v:vectorListas; abb:arbol);
+begin
+	if	(abb<> nil) then begin
+		generarVector(v, abb^.HI);
+		insertarAtras(v[abb^.dato.anio], abb^.dato);
+		generarVector(v, abb^.HD);
+	end;
+end;
+
+
+procedure imprimirLista(l:lista);
+begin
+	while l<>nil do begin
+		writeln('Patente: ',l^.dato.patente,'- Marca: ',l^.dato.marca,'- Modelo:',l^.dato.modelo);
+		l:=l^.sig;
+	end;
+end;
+
+procedure imprimirVector(v:vectorListas);
+var
+	i:integer;
+begin
+	for i:=2010 to 2018 do BEGIN
+		writeln('Anio ',i);
+		imprimirLista(v[i]);
+		writeln();
+	END;
+end;
+
+//  --d. Contenga un módulo que reciba el árbol generado en a) y una patente y devuelva el año de fabricación del auto con dicha patente.
+function buscar(abb:arbol; patente:str30):integer;
+begin
+	if(abb=nil) then buscar:=-1
+	else if (abb^.dato.patente = patente) then buscar:=abb^.dato.anio
+	else begin
+		if(patente < abb^.dato.patente) then buscar:=buscar(abb^.HI, patente)
+		else buscar:=buscar(abb^.HD, patente);
+	end;
+end;
+
+VAR
+	abb:arbol;
+	marca:str30;
+	v:vectorListas;
+	i:integer;
+	patente:str30;
+BEGIN
+	abb:=nil;
+	cargarArbol(abb);
+	write('Ingrese marca a buscar: ');readln(marca);
+	writeln(contarMarca(abb, marca));
+	
+	// inicializo las listas
+	for i:= 2010 to 2018 do
+		v[i]:=nil;
+		
+	generarVector(v, abb);
+	imprimirVector(v);
+	
+	write('Ingrese patente a buscar: ');readln(patente);
+	writeln('El anio es: ',buscar(abb, patente));
+END.
