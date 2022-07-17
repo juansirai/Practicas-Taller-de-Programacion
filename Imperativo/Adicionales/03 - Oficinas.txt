@@ -1,0 +1,124 @@
+{3. El administrador de un edificio de oficinas, cuenta en papel, con la información del pago de
+las expensas de dichas oficinas.
+Implementar un programa que:
+a. Genere un vector, sin orden, con a lo sumo las 300 oficinas que administra. De cada
+oficina se ingresa código de identificación, DNI del propietario y valor de la expensa. La
+lectura finaliza cuando llega el código de identificación -1.
+b. Ordene el vector, aplicando alguno de los métodos vistos en la teoría, para obtener el
+vector ordenado por código de identificación de la oficina.
+c. Realice una búsqueda dicotómica que recibe el vector generado en b) y un código de
+identificación de oficina y retorne si dicho código está en el vector. En el caso de
+encontrarlo, se debe informar el DNI del propietario y en caso contrario informar que
+el código buscado no existe 
+* }
+PROGRAM adicionales;
+
+CONST
+	DIMF = 300;
+	CORTE = -1; //codigo identificacion de corte
+TYPE
+	oficina = record
+		codigo:integer;
+		dni:integer;
+		expensas:real;
+	end;
+	
+	vector = array[1..DIMF] of oficina;
+	
+	
+// ---  a. Genere un vector, sin orden, con a lo sumo las 300 oficinas que administra -------------
+procedure cargar_oficina(var o:oficina);
+begin
+	o.codigo:= random(300)-1;
+	if(o.codigo <> CORTE) then begin
+		o.dni:= random(300);
+		o.expensas:= random * 1000;
+	end;
+end;
+
+procedure cargar_vector(var v:vector; var dimL:integer);
+var
+	o:oficina;
+begin
+	dimL:=0;
+	cargar_oficina(o);
+	while((dimL < DIMF) and (o.codigo <> CORTE))  do begin
+		dimL+=1;
+		v[dimL]:=o;
+		cargar_oficina(o);
+	end;
+	writeln('Vector cargado satisfactoriamente con ', dimL,' elementos');
+end;
+
+
+// ----- b. Ordene el vector, aplicando alguno de los métodos vistos en la teoría ----------
+procedure ordenar_insercion(var v:vector; dimL:integer);
+var
+	i, j, p:integer;
+	item:oficina;
+begin
+	for i:=2 to dimL do begin
+		item:= v[i];
+		j:= i-1;
+		while ((j> 0) and (v[j].codigo > item.codigo))do begin
+			v[j+1]:= v[j];
+			j:= j-1;
+		end;
+		v[j+1]:= item;
+	end;
+end;
+
+//-------------- AUXILIARES --------------------------
+procedure imprimir_vector(v:vector; dimL:integer);
+var
+	i:integer;
+begin
+	for i:=1 to dimL do begin
+		writeln('|| Codigo: ',v[i].codigo,' - DNI: ',v[i].dni,' - Expensas: ',v[i].expensas:1:2);
+	end;
+end;
+
+//-------- c. Realice una búsqueda dicotómica que recibe el vector generado en b ------------
+function busquedaDicotomica(v:vector; dimL,  n:integer):integer;
+var
+	inicio, fin, medio:integer;//del tipo del indice
+	encontre:boolean;
+	resultado:integer;
+begin
+	inicio:=1;
+	fin:=dimL;
+	encontre:=false;
+	resultado:=-1;
+//necesito que el vector esté ordenado
+	while (inicio<=fin) and not encontre do begin
+		medio:=(inicio + fin) div 2;
+		if (v[medio].codigo = n) then begin
+			encontre:=true;
+			resultado:=v[medio].dni;
+		end
+		else
+			if (v[medio].codigo<n)then
+			//para que busque en la 2da mitad
+				inicio:=medio + 1
+			else
+			//para que busque en la 1ra mitad
+				fin:=medio-1;
+	end;
+//esto sigue hasta que se queda sin elementos, que es cuando inicio>fin
+	busquedaDicotomica:=resultado;
+end;	
+//--------- PROGRAMA PRINCIPAL -----------------
+VAR
+	v:vector;
+	dimL:integer;
+	codigo:integer;
+BEGIN
+	cargar_vector(v, dimL);
+	imprimir_vector(v, dimL);
+	writeln();
+	writeln('Vector ordenado: ');
+	ordenar_insercion(v, dimL);
+	imprimir_vector(v, dimL);
+	writeln('Ingrese el codigo a buscar: '); readln(codigo);
+	writeln('El DNI asociado es: ', busquedaDicotomica(v, dimL, codigo));
+END.
