@@ -1,0 +1,193 @@
+{
+* 2. Un teatro tiene funciones los 7 días de la semana. Para cada día se tiene una lista con las
+entradas vendidas.
+Se desea procesar la información de una semana. Se pide:
+a. Generar 7 listas con las entradas vendidas para cada día. De cada entrada se lee día (de
+1 a 7), código de la obra, asiento, monto. La lectura finaliza con el código de obra igual
+a 0. Las listas deben estar ordenadas por código de obra de forma ascendente.
+b. Generar una nueva lista que totalice la cantidad de entradas vendidas por obra. Esta
+lista debe estar ordenada por código de obra de forma ascendente.
+c. Realice un módulo recursivo que informe el contenido de la lista generada en b)
+* }
+
+PROGRAM adicionales;
+CONST
+	CORTE = 0;
+	ALTO = 999;
+TYPE
+	dias = 1..7;
+	entrada = record
+		dia:dias;
+		codigo:integer;
+		asiento:integer;
+		monto:real;
+	end;
+	
+	lista = ^nodo;
+	nodo = record
+		dato: entrada;
+		sig:lista;
+	end;
+	
+	vector_dias = array[dias] of lista;
+	
+	registro = record
+		codigo:integer;
+		entradas:integer;
+	end;
+	lista_total = ^nodo1;
+	nodo1 = record
+		dato: registro;
+		sig:lista_total;
+	end;
+
+
+procedure leer (var e:entrada);
+begin
+	write('Codigo: ');readln(e.codigo);
+	if(e.codigo<>CORTE) then begin
+		write('Dia: ');readln(e.dia);
+		write('Asiento: ');readln(e.asiento);
+		write('Monto: ');readln(e.monto);
+	end;
+end;
+
+procedure insertarOrdenado(var l:lista; e:entrada);
+var
+	nue, ant, act: lista;
+begin
+	new(nue);
+	nue^.dato:= e;
+	ant:= l; act:=l;
+	while((act<>nil) and (e.codigo > act^.dato.codigo)) do begin
+		ant := act;
+		act := act^.sig;
+	end;
+	if(act = ant) then
+		l:=nue
+	else
+		ant^.sig:=nue;
+	 nue^.sig:= act;
+end;
+
+
+procedure inicializarListas(var v:vector_dias);
+var
+	i:dias;
+begin
+	for i:=1 to 7 do
+		v[i]:=nil;
+end;
+
+procedure generarVector(var v:vector_dias);
+var
+	e:entrada;
+begin
+	inicializarListas(v);
+	leer(e);
+	while(e.codigo <> CORTE) do begin
+		insertarOrdenado(v[e.dia], e);
+		leer(e);
+	end;
+end;
+
+procedure imprimirDia(l:lista);
+begin
+	while(l<>nil) do begin
+		write('Codigo: ',l^.dato.codigo, ' - Asiento: ',l^.dato.asiento, ' - Monto: ',l^.dato.monto:1:2);
+		l:=l^.sig;
+	end;
+end;
+
+procedure imprimirVector(v:vector_dias);
+var
+	i:dias;
+begin
+	for i:=1 to 7 do begin
+		writeln('Dia: ', i);
+		imprimirDia(v[i]);
+		writeln();
+	end;
+end;
+
+procedure insertarAtras(var l:lista_total; e:registro);
+var
+	act, nue:lista_total;
+begin
+	new(nue);
+	nue^.dato:=e;
+	nue^.sig:=nil;
+	act:=l;
+	if(l = nil) then
+		l:=nue
+	else begin
+		while(act^.sig<>nil) do
+			act:=act^.sig;
+		act^.sig:=nue;
+	end;
+end;
+
+procedure minimo(var v:vector_dias; var min:entrada);
+var 
+  i, pos : integer;
+begin
+	min.codigo := ALTO;
+	pos := -1;
+	for i := 1 to 7 do 
+		if (v[i] <> NIL) and (v[i]^.dato.codigo <= min.codigo) then 
+		begin
+			pos := i;	
+			min.codigo := v[i]^.dato.codigo;
+		end;
+
+	if (pos <> -1) then
+	begin
+		min := v[pos]^.dato;
+		v[pos] := v[pos]^.sig; 
+	end;
+end;
+
+
+procedure mergeAcumulador(v:vector_dias; var l:lista_total);
+{Totaliza la cantidad de entradas vendidas por obra}
+var
+	min: entrada;
+	ele:registro;
+	cod_actual, entradas_totales: integer;
+begin
+	minimo(v, min);
+	while(min.codigo <> ALTO) do begin
+		cod_actual:=min.codigo;
+		entradas_totales:=0;
+		while ((min.codigo<> ALTO) and (min.codigo = cod_actual)) do begin
+			entradas_totales+=1;
+			minimo(v, min);
+		end;
+		ele.codigo:=cod_actual;
+		ele.entradas:=entradas_totales;
+		insertarAtras(l,ele);
+	end;
+end;
+
+procedure imprimirLista(l:lista_total);
+begin
+	if(l<>nil) then begin
+		writeln('Cod: ',l^.dato.codigo,' - Total: ',l^.dato.entradas);
+		imprimirLista(l^.sig);
+	end;
+end;
+{********************************
+*              PROGRAMA PRINCIPAL
+* *******************************}
+VAR
+	v:vector_dias;
+	l: lista_total;
+BEGIN
+	generarVector(v);
+	imprimirVector(v);
+	l:=nil;
+	mergeAcumulador(v, l);
+	writeln();
+	writeln('Imprimimos lista total: ');
+	imprimirLista(l);
+END.
