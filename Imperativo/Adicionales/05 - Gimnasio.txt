@@ -1,0 +1,185 @@
+{5. Una cadena de gimnasios que tiene 5 sucursales necesita procesar las asistencias de los
+clientes. Implementar un programa con:
+a. Un módulo que lea la información de las asistencias realizadas en las sucursales y
+genere una estructura con código de cliente, dni de cliente, fecha y cantidad de
+minutos que asistió a la sucursal, agrupados por sucursal. Para cada sucursal, los
+clientes deben estar ordenados por código de cliente. De cada asistencia se lee: código
+de sucursal (1..5), dni del cliente, código del cliente, fecha y cantidad de minutos que
+asistió. La lectura finaliza con el código de cliente -1, el cual no se procesa.
+b. Un módulo que reciba la estructura generada en a) y utilizando la técnica de merge o
+merge acumulador genere un árbol ordenado por dni que contenga el dni de cliente y
+la cantidad total de veces que asistió a las sucursales del gimnasio. 
+* }
+
+program adicionales;
+
+CONST
+		CORTE = -1;
+
+TYPE
+	str8 = string[8];
+	sucursales = 1..5;
+	asistencia = record
+		cod_sucu:sucursales;
+		dni : integer;
+		cod_cliente : integer;
+		fecha:str8;
+		minutos:integer;
+	end;
+	
+	lista = ^nodoL;
+	nodoL = record
+		dato: asistencia;
+		sig: lista;
+	end;
+	vector = array[sucursales] of lista;
+	
+	
+	acumulado = record
+		dni:integer;
+		total:integer;
+	end;
+	arbol = ^nodoA;
+	nodoA = record
+		dato: acumulado;
+		HI : arbol;
+		HD : arbol;
+	end;
+
+// --------------- GENERAR LA ESTRUCTURA DE LISTA --------------------
+procedure leerAsistencia(var a:asistencia);
+begin
+	write('Cod Cliente: ');readln(a.cod_cliente);
+	if(a.cod_cliente <> CORTE) then begin
+		write('Sucursal: ');readln(a.cod_sucu);
+		write('DNI: '); readln(a.dni);
+		write('Fecha: ');readln(a.fecha);
+		write('Minutos: ');readln(a.minutos);
+	end;
+end;
+
+procedure insertarOrdenado(var l:lista; a:asistencia);
+var
+	ant, act, nue:lista;
+begin
+	new(nue);
+	nue^.dato:=a;
+	act:=l;
+	ant:=l;
+	while((act <> nil) and (act^.dato.cod_cliente> a.cod_cliente)) do begin
+		ant:=act;
+		act:= act^.sig;
+	end;
+	if(act = ant) then
+		l:=nue
+	else
+		ant^.sig:=nue;
+	nue^.sig:=act;
+end;
+
+procedure generarVector(var v:vector);
+var
+	a:asistencia;
+	i:integer;
+begin
+	// inicializo los punteros
+	for i:=1 to 7 do 
+		v[i]:=nil;
+	leerAsistencia(a);
+	while(a.cod_cliente <> CORTE) do begin
+		insertarOrdenado(v[a.cod_sucu], a);
+		leerAsistencia(a);
+	end;
+end;
+
+procedure imprimirVector(v:vector);
+var
+	i:integer;
+begin
+	for i:=1 to 5 do begin
+		writeln('Sucursal: ',i);
+		while(v[i]<>nil) do begin
+			writeln('Cod cliente: ',v[i]^.dato.cod_cliente, '- DNI: ', v[i]^.dato.dni,' - Fecha: ',v[i]^.dato.fecha,  ' - Minutos: ',v[i]^.dato.minutos);
+			v[i]:=v[i]^.sig;
+		end;
+		writeln();
+	end;
+end;
+
+// ----- Punto B, generacion de estructura de arbol -------------
+
+
+procedure abb(var a:arbol; dato:acumulado);
+begin
+	if(a=nil) then begin
+		new(a);
+		a^.dato:=dato;
+		a^.HI:=nil;
+		a^.HD:=nil;
+	end
+	else begin
+		if(dato.dni<a^.dato.dni) then abb(a^.HI, dato)
+		else abb(a^.HD, dato);
+	end;
+end;	
+
+
+procedure minimo(var v:vector; var minDNI:integer);
+var
+	i, posMin:integer;
+begin
+	posMin:=-1;
+	minDNI:= 9999;
+	for i:=1 to 5 do begin
+		if((v[i] <> nil) and (v[i]^.dato.dni <= minDNI)) then begin
+			posMin:=i;
+			minDNI:=v[i]^.dato.dni;
+		end;
+	end;
+	if(posMin<>-1) then begin
+		v[posMin]:=v[posMin]^.sig;
+	end;
+end;
+
+
+procedure generarArbol(var a:arbol; v:vector);
+var
+	minDNI:integer;
+	dniActual:integer;
+	total:integer;
+	dato: acumulado;
+begin
+	minimo(v, minDNI);
+	while(minDNI <> 9999) do begin
+		dniActual:=minDNI;
+		total:=0;
+		while((minDNI<>9999) and (dniActual = minDNI)) do begin
+			total+=1;
+			minimo(v, minDNI);
+		end;
+		// agrego en el arbol
+		dato.dni:= dniActual;
+		dato.total:= total;
+		abb(a, dato);
+	end;
+end;
+
+procedure imprimirArbol(a:arbol);
+begin
+	if(a<>nil) then begin
+		imprimirArbol(a^.HI);
+		writeln('DNI: ',a^.dato.dni,' Total: ',a^.dato.total);
+		imprimirArbol(a^.HD);
+	end;
+end;
+
+VAR
+	v:vector;
+	a: arbol;
+BEGIN
+	generarVector(v);
+	imprimirVector(v);
+	a:=nil;
+	generarArbol(a, v);
+	imprimirArbol(a);
+END.
