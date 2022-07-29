@@ -1,0 +1,126 @@
+programa parcial
+procesos
+  proceso juntarFlores(ES flor:numero)
+  comenzar
+    mientras HayFlorEnLaEsquina
+      tomarFlor
+      flor:= flor+1    
+  fin
+  proceso juntarPapeles(ES papel:numero)
+  comenzar
+    mientras HayPapelEnLaEsquina
+      tomarPapel
+      papel:=papel+1
+  fin
+  proceso vaciarFlores(E flor:numero; E av:numero; E ca:numero)
+  variables
+    avAct, caAct:numero
+  comenzar
+    avAct := PosAv
+    caAct := PosCa
+    BloquearEsquina(av, ca)
+    Pos(av, ca)
+    repetir flor
+      depositarFlor
+    Pos(avAct, caAct)
+    LiberarEsquina(av, ca)
+  fin
+  proceso vaciarPapeles(E papeles:numero; E av:numero; E ca:numero)
+  variables
+    avAct, caAct:numero
+  comenzar
+    avAct := PosAv
+    caAct := PosCa
+    BloquearEsquina(av, ca)
+    Pos(av, ca)
+    repetir papeles
+      depositarPapel
+    Pos(avAct, caAct)
+    LiberarEsquina(av, ca)
+  fin
+  proceso tareaFlorero(ES flores:numero; E ca:numero; E av:numero)
+  variables
+    avAct, caAct:numero
+  comenzar
+    avAct := PosAv
+    caAct := PosCa
+    BloquearEsquina(av, ca)
+    Pos(av, ca)
+    juntarFlores(flores)
+    Pos(avAct, caAct)
+    LiberarEsquina(av, ca)
+  fin
+  proceso tareaPapelero(ES papeles:numero; E ca:numero; E av:numero)
+  variables
+    avAct, caAct:numero
+  comenzar
+    avAct := PosAv
+    caAct := PosCa
+    BloquearEsquina(av, ca)
+    Pos(av, ca)
+    juntarPapeles(papeles)
+    Pos(avAct, caAct)
+    LiberarEsquina(av, ca)
+  fin
+areas
+  AreaFloreros: AreaP(1, 1, 5, 10)
+  AreaPapeleros: AreaP(6, 1, 10, 9)
+  EsquinaInicioF: AreaP(6, 10, 7, 10)
+  EsquinaInicioP: AreaP(8,10, 9, 10)
+  AreaFinal: AreaC(10,10,10,10)
+robots
+  robot florero
+  variables
+    intentos: numero
+    ca, av:numero
+    flores:numero
+  comenzar
+    flores := 0
+    Random(av,1,5)
+    Random(ca,1,10)
+    intentos := 5
+    repetir intentos
+      tareaFlorero(flores, ca, av)
+      Random(av,1,5)
+      Random(ca,1,10) 
+    vaciarFlores(flores, 10, 10)
+  fin
+  robot papelero
+  variables
+    intentos:numero
+    ca, av: numero
+    papeles:numero
+  comenzar
+    intentos:=3
+    papeles:=0
+    Random(av,6, 10)
+    Random(ca, 1, 9)
+    repetir intentos
+      tareaPapelero(papeles, ca, av)
+      Random(av, 6, 10)
+      Random(ca, 1, 9)
+    vaciarPapeles(papeles, 10, 10)
+  fin
+variables
+  robot1:florero
+  robot2:florero
+  robot3:papelero
+  robot4:papelero
+comenzar
+  AsignarArea(robot1, AreaFloreros)
+  AsignarArea(robot2, AreaFloreros)
+  AsignarArea(robot3, AreaPapeleros)
+  AsignarArea(robot4, AreaPapeleros)
+  AsignarArea(robot1, EsquinaInicioF)
+  AsignarArea(robot2, EsquinaInicioF)
+  AsignarArea(robot3, EsquinaInicioP)
+  AsignarArea(robot4, EsquinaInicioP)
+  AsignarArea(robot1, AreaFinal)
+  AsignarArea(robot2, AreaFinal)
+  AsignarArea(robot3, AreaFinal)
+  AsignarArea(robot4, AreaFinal)
+  Iniciar(robot1, 6,10)
+  Iniciar(robot2, 7, 10)
+  Iniciar(robot3, 8, 10)
+  Iniciar(robot4, 9, 10)
+fin
