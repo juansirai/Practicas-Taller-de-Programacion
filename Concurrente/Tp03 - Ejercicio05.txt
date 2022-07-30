@@ -1,0 +1,96 @@
+programa final
+procesos
+  proceso juntarPapel(ES exito:boolean)
+  comenzar
+    si HayPapelEnLaEsquina
+      tomarPapel
+    sino
+      exito:= F    
+  fin
+  proceso darPaso(ES exito:boolean)
+  variables
+    ca, av:numero
+  comenzar
+    ca := PosCa
+    av := PosAv
+    BloquearEsquina(11, 11)
+    Pos(11,11)
+    juntarPapel(exito)
+    Pos(av, ca)
+    LiberarEsquina(11, 11)
+    si exito
+      depositarPapel
+      mover
+  fin
+  proceso calcularMaximo(E distancia:numero; ES dMax:numero; E rob:numero; ES rMax:numero)
+  comenzar
+    si (distancia > dMax)
+      dMax:= distancia
+      rMax:= rob
+  fin
+areas
+  fuente : AreaPC(11,11,11,11)
+  areaUno : AreaP(4, 1, 4, 100)
+  areaDos : AreaP(6, 1, 6, 100)
+  areaTres : AreaP(8, 1, 8, 100)
+  areaCuatro: AreaP(10,1,10,100)
+  areaCoord: AreaP(1, 1, 1, 1)
+robots
+  robot jugador
+  variables
+    exito:boolean
+    quienSoy: numero
+    distancia:numero
+  comenzar
+    distancia:= 0
+    exito:= V
+    RecibirMensaje(quienSoy, jefe)
+    mientras ((exito) & (PosCa < 100))
+      darPaso(exito)
+    EnviarMensaje(quienSoy, jefe)
+    distancia:= PosCa
+    EnviarMensaje(distancia, jefe)
+  fin
+  robot coordinador
+  variables
+    rob, robMax:numero
+    distancia, distanciaMax:numero
+  comenzar
+    distanciaMax := -1
+    robMax := -1
+    EnviarMensaje(1, robot1)
+    EnviarMensaje(2, robot2)
+    EnviarMensaje(3, robot3)
+    EnviarMensaje(4, robot4)
+    repetir 4
+      RecibirMensaje(rob, *)
+      si ( rob = 1)
+        RecibirMensaje(distancia, robot1)
+      si(rob = 2)
+        RecibirMensaje(distancia, robot2)
+      si (rob = 3)
+        RecibirMensaje(distancia, robot3)
+      si (rob = 4)
+        RecibirMensaje(distancia, robot4)
+      calcularMaximo(distancia, distanciaMax, rob, robMax)
+    Informar(robMax)
+  fin
+variables
+  robot1, robot2, robot3, robot4 : jugador
+  jefe: coordinador
+comenzar
+  AsignarArea(robot1, areaUno)
+  AsignarArea(robot2, areaDos)
+  AsignarArea(robot3, areaTres)
+  AsignarArea(robot4, areaCuatro)
+  AsignarArea(robot1, fuente)
+  AsignarArea(robot2, fuente)
+  AsignarArea(robot3, fuente)
+  AsignarArea(robot4, fuente)
+  AsignarArea(jefe, areaCoord)
+  Iniciar(robot1, 4, 1)
+  Iniciar(robot2, 6, 1)
+  Iniciar(robot3, 8, 1)
+  Iniciar(robot4, 10,1)
+  Iniciar(jefe, 1, 1)
+fin
