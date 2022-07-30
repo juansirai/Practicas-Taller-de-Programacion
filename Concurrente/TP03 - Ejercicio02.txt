@@ -1,0 +1,170 @@
+programa carrera
+procesos
+  proceso izquierda
+  comenzar
+    repetir 3
+      derecha
+  fin
+  proceso juntarFlores(ES f:numero)
+  comenzar
+    mientras HayFlorEnLaEsquina
+      tomarFlor
+      f := f+1
+  fin
+  proceso juntarPapeles(ES p:numero)
+  comenzar
+    mientras HayPapelEnLaEsquina
+      tomarPapel
+      p := p+1
+  fin
+  proceso escalonDerecha(E cuadras:numero; ES f:numero)
+  comenzar
+    juntarFlores(f)
+    repetir cuadras
+      mover
+    derecha
+    juntarFlores(f)
+    repetir cuadras
+      mover
+    izquierda
+  fin
+  proceso escalonIzquierda(E cuadras:numero; ES p:numero)
+  comenzar
+    juntarPapeles(p)
+    repetir cuadras
+      mover
+    izquierda
+    juntarPapeles(p)
+    repetir cuadras
+      mover
+    derecha
+  fin
+  proceso escaleraIzquierda1(E longInicial:numero; ES p:numero)
+  variables
+    escalones:numero
+  comenzar
+    escalones := longInicial
+    repetir (longInicial - 1)
+      escalonIzquierda(escalones, p)
+      escalones:= escalones - 1
+    {Ultimo tramo}
+    juntarPapeles(p)
+    mover
+    juntarPapeles(p)
+    izquierda
+    BloquearEsquina(PosAv - 1, PosCa)
+    mover
+    juntarPapeles(p)
+    repetir 2
+      derecha
+    mover
+    LiberarEsquina(PosAv - 1, PosCa)
+  fin
+  proceso escaleraIzquierda2(E longInicial:numero; ES p:numero)
+  variables
+    escalones:numero
+  comenzar
+    {Ahora hago la escalera de menor a mayor}
+    escalones := 2
+    repetir (longInicial - 1)
+      escalonIzquierda(escalones, p)
+      escalones:= escalones + 1
+    juntarPapeles(p)
+  fin
+  proceso escaleraDerecha1(E longInicial:numero; ES f:numero)
+  variables
+    escalones:numero
+  comenzar
+    escalones := longInicial
+    repetir (longInicial - 1)
+      escalonDerecha(escalones, f)
+      escalones := escalones - 1 
+    {hago el ultimo tramo}
+    juntarFlores(f)
+    mover
+    juntarFlores(f)
+    derecha
+    BloquearEsquina(PosAv + 1, PosCa)
+    mover
+    juntarFlores(f)
+    repetir 2
+      izquierda
+    mover
+    LiberarEsquina(PosAv + 1, PosCa)
+  fin
+  proceso escaleraDerecha2(E longInicial:numero; ES f:numero)
+  variables
+    escalones:numero
+  comenzar
+    {Hago la escalera de regreso}
+    escalones := 2
+    repetir (longInicial - 1)
+      escalonDerecha(escalones, f)
+      escalones := escalones +1
+    juntarFlores(f)
+  fin
+areas
+  areaRobot1: AreaP(1,1, 14, 100)
+  areaRobot2: AreaP(18, 1,31 ,100)
+  areaComun: AreaC(15, 1, 17, 100)
+robots
+  robot administrador
+  variables
+    rob : numero
+    ganador:numero
+  comenzar
+    ganador := -1
+    EnviarMensaje(1, robot1)
+    EnviarMensaje(2, robot2)
+    RecibirMensaje(rob, *)
+    si (rob = 1)
+      ganador:= 1
+      RecibirMensaje(rob, robot2)
+    sino
+      ganador:= 2
+      RecibirMensaje(rob, robo1)
+    {para esperar a que termine la carrera}
+    repetir 2
+      RecibirMensaje(rob, *)
+    Informar(ganador)
+  fin
+  robot papelero
+  variables
+    p:numero
+    quienSoy:numero
+  comenzar
+    p:=0
+    RecibirMensaje(quienSoy, jefe)
+    escaleraIzquierda1(5, p)
+    EnviarMensaje(quienSoy, jefe)
+    escaleraIzquierda2(5, p)
+    EnviarMensaje(quienSoy, jefe)
+    Informar(p)
+  fin
+  robot florero
+  variables
+    f:numero
+    quienSoy:numero
+  comenzar
+    f:=0
+    RecibirMensaje(quienSoy, jefe)
+    escaleraDerecha1(5, f)
+    EnviarMensaje(quienSoy, jefe)
+    escaleraDerecha2(5, f)
+    EnviarMensaje(quienSoy, jefe)
+    Informar(f)
+  fin
+variables
+  robot1:florero
+  robot2:papelero
+  jefe:administrador
+comenzar
+  AsignarArea(robot1, areaRobot1)
+  AsignarArea(robot2, areaRobot2)
+  AsignarArea(jefe, areaComun)
+  AsignarArea(robot1, areaComun)
+  AsignarArea(robot2, areaComun)
+  Iniciar(robot1, 1, 1)
+  Iniciar(robot2, 31, 1)
+  Iniciar(jefe, 15, 1)
+fin
