@@ -1,0 +1,109 @@
+programa final
+procesos
+  proceso juntarFlor(ES f:numero; ES exito:boolean)
+  comenzar
+    si (HayFlorEnLaEsquina)
+      tomarFlor
+      f := f + 1
+    sino
+      exito := F
+  fin
+  proceso intento(ES f:numero; ES exito:boolean; E ca:numero; E av:numero)
+  variables  
+    caAct, avAct:numero
+  comenzar
+    caAct := PosCa
+    avAct := PosAv
+    BloquearEsquina(av, ca)
+    Pos(av, ca)
+    juntarFlor(f, exito)
+    Pos(avAct, caAct)
+    LiberarEsquina(av, ca)
+  fin
+  proceso calcularMaximo(E f:numero; ES fMax:numero; E rob:numero; ES robMax: numero)
+  comenzar
+    si(f > fMax)
+      fMax := f
+      robMax := rob
+  fin
+areas
+  areaJuego : AreaPC(2, 2, 10, 10)
+  calleInicio : AreaPC(1, 1, 5, 1)
+robots
+  robot jugador
+  variables
+    f:numero
+    quienSoy:numero
+    exito:boolean
+    ca, av: numero
+  comenzar
+    exito:=V
+    f:= 0
+    RecibirMensaje(quienSoy, jefe)
+    RecibirMensaje(av, jefe)
+    RecibirMensaje(ca, jefe)
+    mientras (exito)
+      intento(f, exito, ca, av)
+    EnviarMensaje(quienSoy, jefe)
+    EnviarMensaje(f, jefe)
+  fin
+  robot administrador
+  variables
+    numRob, robMax:numero
+    ca, av: numero
+    f, fMax: numero
+  comenzar
+    fMax:= -1
+    robMax := -1
+    Random(ca, 2, 10)
+    Random(av, 2, 10)
+    EnviarMensaje(1, robot1)
+    EnviarMensaje(2, robot2)
+    EnviarMensaje(3, robot3)
+    EnviarMensaje(4, robot4)
+    EnviarMensaje(av,robot1)
+    EnviarMensaje(av, robot2)
+    EnviarMensaje(av, robot3)
+    EnviarMensaje(av, robot4)
+    EnviarMensaje(ca, robot1)
+    EnviarMensaje(ca, robot2)
+    EnviarMensaje(ca, robot3)
+    EnviarMensaje(ca, robot4)
+    repetir 4
+      RecibirMensaje(numRob, *)
+      si (numRob = 1)
+        RecibirMensaje(f, robot1)
+      sino
+        si (numRob = 2)
+          RecibirMensaje(f, robot2)
+        sino
+          si (numRob = 3)
+            RecibirMensaje(f, robot3)
+          sino
+            RecibirMensaje(f, robot4)
+      calcularMaximo(f, fMax, numRob, robMax)
+    Informar(robMax)
+    Informar(fMax)
+  fin
+variables
+  robot1:jugador
+  robot2:jugador
+  robot3:jugador
+  robot4:jugador
+  jefe : administrador
+comenzar
+  AsignarArea(robot1, areaJuego)
+  AsignarArea(robot2, areaJuego)
+  AsignarArea(robot3, areaJuego)
+  AsignarArea(robot4, areaJuego)
+  AsignarArea(robot1, calleInicio)
+  AsignarArea(robot2, calleInicio)
+  AsignarArea(robot3, calleInicio)
+  AsignarArea(robot4, calleInicio)
+  AsignarArea(jefe, calleInicio)
+  Iniciar(robot1, 2, 1)
+  Iniciar(robot2, 3, 1)
+  Iniciar(robot3, 4, 1)
+  Iniciar(robot4, 5, 1)
+  Iniciar(jefe, 1,1 )
+fin
