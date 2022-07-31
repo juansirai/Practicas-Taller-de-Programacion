@@ -1,0 +1,252 @@
+programa final
+procesos
+  proceso juntarFlores
+  comenzar
+    mientras HayFlorEnLaEsquina
+      tomarFlor
+  fin
+  proceso juntarPapeles
+  comenzar
+    mientras HayPapelEnLaEsquina
+      tomarPapel
+  fin
+  proceso juntarAmbos
+  comenzar
+    juntarFlores
+    juntarPapeles
+  fin
+  proceso cuadradoFlores
+  comenzar
+    repetir 6
+      juntarFlores
+      mover
+    derecha
+    repetir 2
+      juntarFlores
+      mover
+    {trabajo sobre la interseccion}
+    juntarFlores
+    BloquearEsquina(PosAv + 1 , PosCa)
+    mover
+    juntarFlores
+    mover
+    LiberarEsquina(PosAv - 1, PosCa)
+    repetir 2
+      juntarFlores
+      mover
+    derecha
+    repetir 2
+      juntarFlores
+      mover
+    {trabajo sobre la interseccion}
+    juntarFlores
+    BloquearEsquina(PosAv, PosCa - 1)
+    mover
+    juntarFlores
+    mover
+    LiberarEsquina(PosAv, PosCa + 1)
+    repetir 2
+      juntarFlores
+      mover
+    derecha
+    repetir 6
+      juntarFlores
+      mover
+    derecha
+  fin
+  proceso cuadradoPapeles
+  comenzar
+    repetir 5
+      juntarPapeles
+      mover
+    juntarPapeles
+    {trabajo la interseccion}
+    BloquearEsquina(PosAv, PosCa + 1)
+    mover
+    juntarPapeles
+    mover
+    LiberarEsquina(PosAv, PosCa - 1)
+    derecha
+    repetir 7
+      juntarPapeles
+      mover
+    derecha
+    repetir 7
+      juntarPapeles
+      mover
+    derecha
+    juntarPapeles
+    {trabajo la interseccion}
+    BloquearEsquina(PosAv - 1, PosCa)
+    mover
+    juntarPapeles
+    mover
+    LiberarEsquina(PosAv + 1, PosCa)
+    repetir 5
+      juntarPapeles
+      mover
+    derecha
+  fin
+  proceso cuadradoMixto
+  comenzar
+    repetir 2
+      juntarAmbos
+      mover
+    juntarAmbos
+    {trabajo sobre la interseccion}
+    BloquearEsquina(PosAv, PosCa + 1)
+    mover
+    juntarAmbos
+    mover
+    LiberarEsquina(PosAv, PosCa - 1)
+    repetir 6
+      juntarAmbos
+      mover
+    derecha
+    repetir 3
+      juntarAmbos
+      mover
+    juntarAmbos
+    {trabajo sobre la interseccion}
+    BloquearEsquina(PosAv + 1, PosCa)
+    mover
+    juntarAmbos
+    mover
+    LiberarEsquina(PosAv - 1, PosCa)
+    repetir 5
+      juntarAmbos
+      mover
+    derecha
+    repetir 5
+      juntarAmbos
+      mover
+    juntarAmbos
+    {trabajo sobre la interseccion}
+    BloquearEsquina(PosAv, PosCa - 1)
+    mover
+    juntarAmbos
+    mover
+    LiberarEsquina(PosAv, PosCa + 1)
+    repetir 3
+      juntarAmbos
+      mover
+    derecha
+    repetir 6
+      juntarAmbos
+      mover
+    juntarAmbos
+    {trabajo sobre la interseccion}
+    BloquearEsquina(PosAv - 1, PosCa)
+    mover
+    juntarAmbos
+    mover
+    LiberarEsquina(PosAv + 1, PosCa)
+    repetir 2
+      juntarAmbos
+      mover
+    derecha
+  fin
+  proceso hacerCalleFlores
+  comenzar
+    mientras (HayFlorEnLaBolsa & (PosAv < 100))
+      depositarFlor
+      mover
+    si HayFlorEnLaBolsa
+      depositarFlor
+  fin
+  proceso hacerCallePapeles
+  comenzar
+    mientras (HayPapelEnLaBolsa & (PosCa < 100))
+      depositarPapel
+      mover
+    si HayPapelEnLaBolsa
+      depositarPapel
+  fin
+  proceso hacerCalleAmbos
+  comenzar
+    mientras (HayPapelEnLaBolsa & HayFlorEnLaBolsa & (PosCa < 100))
+      depositarPapel
+      depositarFlor
+      mover
+    si (PosCa < 100 )
+      hacerCallePapeles
+      hacerCalleFlores
+    sino
+      si HayPapelEnLaBolsa
+        depositarPapel
+      si HayFlorEnLaBolsa
+        depositarFlor
+  fin
+  proceso hacerCalle(E quienSoy:numero)
+  comenzar
+    derecha
+    si (quienSoy = 1)
+      hacerCalleFlores
+    sino
+      si (quienSoy = 2)
+        hacerCalleAmbos
+      sino
+        hacerCallePapeles
+  fin
+areas
+  rectaFinal : AreaPC(1,20,100,22)
+  areaUno : AreaP(2,2,4,8)
+  areaUnoDos: AreaPC(5,2,8,15)
+  areaDosTres: AreaPC(9,5,16,16)
+  areaControl: AreaP(1, 1, 1, 1)
+robots
+  robot coordinador
+  variables
+    numRob:numero
+    calle: numero
+  comenzar
+    EnviarMensaje(1, robot1)
+    EnviarMensaje(2, robot2)
+    EnviarMensaje(3, robot3)
+    calle:=20
+    repetir 3
+      RecibirMensaje(numRob, *)
+      si (numRob = 1)
+        EnviarMensaje(calle, robot1)
+      si (numRob = 2)
+        EnviarMensaje(calle, robot2)
+      si (numRob = 3)
+        EnviarMensaje(calle, robot3)
+      calle:= calle + 1
+  fin
+  robot jugador
+  variables
+    quienSoy:numero
+    calle:numero
+  comenzar
+    RecibirMensaje(quienSoy, jefe)
+    si (quienSoy = 1)
+      cuadradoFlores
+    sino 
+      si (quienSoy = 2)
+        cuadradoMixto
+      sino
+        cuadradoPapeles
+    EnviarMensaje(quienSoy, jefe)
+    RecibirMensaje(calle, jefe)
+    Pos(1, calle)
+    hacerCalle(quienSoy)
+  fin
+variables
+  robot1, robot2, robot3 : jugador
+  jefe: coordinador
+comenzar
+  AsignarArea(robot1, areaUno)
+  AsignarArea(robot1, areaUnoDos)
+  AsignarArea(robot2, areaUnoDos)
+  AsignarArea(robot2, areaDosTres)
+  AsignarArea(robot3, areaDosTres)
+  AsignarArea(jefe, areaControl)
+  AsignarArea(robot1, rectaFinal)
+  AsignarArea(robot2, rectaFinal)
+  AsignarArea(robot3, rectaFinal)
+  Iniciar(jefe, 1, 1)
+  Iniciar(robot1, 2, 2)
+  Iniciar(robot2, 5, 5)
+  Iniciar(robot3, 9,9)
+fin
