@@ -99,6 +99,8 @@ begin
 			    dato.nroDNI:= a^.elemento.nroDNI;
 			    insertarOrdenado(v, dimL, dato);
 			end;
+			retornarVector(a^.hd, num1, num2, cat, v, dimL);
+			retornarVector(a^.hi, num1, num2, cat, v, dimL);
 		end
 		else if (a^.elemento.nroAfiliado<num1) then
 			retornarVector(a^.hd, num1, num2, cat, v, dimL)
