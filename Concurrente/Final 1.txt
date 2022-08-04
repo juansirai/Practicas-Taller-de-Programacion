@@ -1,0 +1,129 @@
+programa final
+procesos
+  proceso juntarFlor(ES f:numero; ES exito:boolean)
+  comenzar
+    si HayFlorEnLaEsquina
+      tomarFlor
+      f := f+1
+    sino
+      exito:= F
+  fin
+  proceso juntarPapel(ES p:numero; ES exito:boolean)
+  comenzar
+    si HayPapelEnLaEsquina
+      tomarPapel
+      p := p+1
+    sino
+      exito:= F
+  fin
+  proceso tomarObjeto(ES f:numero; ES p:numero; ES exito:boolean)
+  variables
+    exitoF: boolean
+    exitoP: boolean
+  comenzar
+    exitoF:= V
+    exitoP:= V
+    juntarFlor(f, exitoF)
+    si (~exitoF)
+      juntarPapel(p, exitoP)
+    exito := (exitoF | exitoP) {si al menos uno de los dos fue exitoso}
+  fin
+areas
+  esquinaJuego : AreaPC(30,30,40,40)
+  inicioJefe : AreaP(1, 1, 1, 1)
+  inicioUno : AreaP(2, 2, 2, 2)
+  inicioDos : AreaP(3, 3, 3, 3)
+  inicioTres : AreaP(4, 4, 4, 4)
+  inicioCuatro : AreaP(5, 5, 5, 5)
+robots
+  robot jugador
+  variables
+    quienSoy : numero
+    flores, papeles: numero
+    continua : boolean
+    caIni, avIni: numero
+    actuar: boolean
+  comenzar
+    flores:= 0
+    papeles:=0
+    continua:=V
+    actuar:= F
+    caIni:= PosCa
+    avIni:= PosAv
+    RecibirMensaje(quienSoy, jefe)
+    mientras continua
+      BloquearEsquina(30,30)
+      Pos(30,30)
+      tomarObjeto(flores, papeles, continua)
+      Pos(avIni, caIni)
+      LiberarEsquina(30,30)
+    EnviarMensaje(quienSoy, jefe)
+    RecibirMensaje(actuar, jefe)
+    si actuar
+      Pos(40,40)
+      repetir flores
+        depositarFlor
+  fin
+  robot coordinador
+  variables
+    numRob:numero
+    tercerRobot:numero
+    posicion:numero
+  comenzar
+    EnviarMensaje(1, robot1)
+    EnviarMensaje(2, robot2)
+    EnviarMensaje(3, robot3)
+    EnviarMensaje(4, robot4)
+    posicion:=1
+    repetir 4
+      RecibirMensaje(numRob, *)
+      si(numRob = 1)
+        si(posicion = 3)
+          EnviarMensaje(V, robot1)
+        sino
+          EnviarMensaje(F, robot1)
+      si(numRob = 2)
+        si(posicion = 3)
+          EnviarMensaje(V, robot2)
+        sino
+          EnviarMensaje(F, robot2)
+      si(numRob = 3)
+        si(posicion = 3)
+          EnviarMensaje(V, robot3)
+        sino
+          EnviarMensaje(F, robot3)
+      si(numRob = 4)
+        si(posicion = 3)
+          EnviarMensaje(V, robot4)
+        sino
+          EnviarMensaje(F, robot4)
+      posicion := posicion + 1 
+  fin
+variables
+  robot1, robot2, robot3, robot4 : jugador
+  jefe : coordinador
+comenzar
+  AsignarArea(robot1, esquinaJuego)
+  AsignarArea(robot2,esquinaJuego)
+  AsignarArea(robot3, esquinaJuego )
+  AsignarArea(robot4,esquinaJuego )
+  AsignarArea(jefe, inicioJefe )
+  AsignarArea(robot1, inicioUno )
+  AsignarArea(robot2, inicioDos)
+  AsignarArea(robot3, inicioTres )
+  AsignarArea(robot4, inicioCuatro )
+  Iniciar(jefe, 1, 1)
+  Iniciar(robot1, 2, 2)
+  Iniciar(robot2,3, 3)
+  Iniciar(robot3, 4, 4)
+  Iniciar(robot4, 5, 5)
+fin
+
+{En la ciudad existen 5 robots: de los cuales 4 deben ir a la esquina (30,30) y tratar de juntar de a un objeto por vez que van hasta que no haya mas. Cuando un robot va a la esquina (30,30) y no hay mas objetos le avisa al robot número 5 el cual es el jefe que terminó. Una vez que todos terminaron el robot jefe le dice al tercer robot (dependiendo el orden en que terminaron) que vaya a depositar sólo las flores juntadas a la esquina (40,40).
+Notas: 
+El robot 5, el jefe comienza en la esquina (1,1).
+El robot 1 comienza en la esquina (2,2).
+El robot 2 comienza en la esquina (3,3)
+El robot 3 comienza en la esquina (4,4)
+El robot 4 comienza en la esquina (5,5).
+}
