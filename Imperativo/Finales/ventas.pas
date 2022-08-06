@@ -160,17 +160,44 @@ begin
 		lis:= lis^.sig;
 	end;
 end;
+
+function masQuinientas(lis:lista):integer;
+begin
+	if(lis=nil) then
+		masQuinientas:= 0
+	else if (lis^.elemento.cant>2500) then
+		masQuinientas:= 1 + masQuinientas(lis^.sig)
+	else
+		masQuinientas:= masQuinientas(lis^.sig);
+end;
+
+procedure masQuinientasP(lis:lista; var cant:integer);
+begin
+	if(lis<>nil) then begin
+		if(lis^.elemento.cant>2500) then begin
+			cant+=1;
+			masQuinientasP(lis^.sig, cant)
+		end
+		else
+			masQuinientasP(lis^.sig, cant)
+	end;
+end;
 // -------------------PROGRAMA PRINCIPAL ----------------------------//
 VAR
 	v:vectorSucursales;
 	dimL: vectorDIML;
 	lis, ult: lista;
+	cant:integer;
 BEGIN
 	lis:= nil;
 	ult:=nil;
+	cant:=0;
 	cargarSucursales(v, dimL);
 	imprimirSucursales(v, dimL);
 	mergeAcumulador(v, dimL, lis, ult);
 	writeln('Imprimimos lista');
 	imprimirLista(lis);
+	writeln('Superan las 500 unidades: ', masQuinientas(lis));
+	masQuinientasP(lis, cant);
+	writeln('Superan las 500 unidades: ', cant);
 END.
