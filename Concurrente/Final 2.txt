@@ -1,0 +1,176 @@
+programa final
+procesos
+  proceso juntarFlores(ES f:numero)
+  comenzar
+    mientras HayFlorEnLaEsquina
+      tomarFlor
+      f:= f+1
+  fin
+  proceso hacerCuadradoR(ES f:numero; E ancho:numero)
+  comenzar
+    repetir 2
+      repetir 15
+        juntarFlores(f)
+        mover
+      derecha
+      repetir ancho
+        juntarFlores(f)
+        mover
+      derecha
+  fin
+  proceso vaciarFlores(E f:numero)
+  comenzar
+    repetir f
+      depositarFlor
+  fin
+  proceso hacerCuadradoD(E ancho:numero)
+  comenzar
+    repetir 2
+      repetir 15
+        si HayFlorEnLaBolsa
+          depositarFlor
+        mover
+      derecha
+      repetir ancho
+        si HayFlorEnLaBolsa
+          depositarFlor
+        mover
+      derecha
+  fin
+areas
+  areaUno : AreaPC(1, 10, 100, 25)
+  areaDos: AreaPC(1, 30, 100, 45)
+  areaInicio: AreaC(1, 1, 5, 5)
+robots
+  robot jugadorUno
+  variables
+    quienSoy:numero
+    f:numero
+    ancho:numero
+    avenida:numero
+    avIni, caIni:numero
+  comenzar
+    avIni:=PosAv
+    caIni:=PosCa
+    f:=0
+    RecibirMensaje(quienSoy, jefe)
+    RecibirMensaje(ancho, jefe)
+    RecibirMensaje(avenida, jefe)
+    Pos(avenida, 10)
+    hacerCuadradoR(f, ancho)
+    Pos(5, 15)
+    vaciarFlores(f)
+    Pos(avIni, caIni)
+    EnviarMensaje(quienSoy, robot2)
+  fin
+  robot jugadorTres
+  variables
+    quienSoy:numero
+    f:numero
+    ancho:numero
+    avenida:numero
+    avIni, caIni:numero
+  comenzar
+    avIni:=PosAv
+    caIni:=PosCa
+    f:=0
+    RecibirMensaje(quienSoy, jefe)
+    RecibirMensaje(ancho, jefe)
+    RecibirMensaje(avenida, jefe)
+    Pos(avenida, 30)
+    hacerCuadradoR(f, ancho)
+    Pos(5, 40)
+    vaciarFlores(f)
+    Pos(avIni, caIni)
+    EnviarMensaje(quienSoy,robot4)
+  fin
+  robot jugadorDos
+  variables
+    quienSoy:numero
+    ancho:numero
+    avenida:numero
+    avIni, caIni:numero
+    f:numero
+  comenzar
+    f:=0
+    avIni:=PosAv
+    caIni:=PosCa
+    RecibirMensaje(ancho, jefe)
+    RecibirMensaje(avenida, jefe)
+    RecibirMensaje(quienSoy, robot1)
+    Pos(5, 15)
+    juntarFlores(f)
+    Pos(avenida, 10)
+    hacerCuadradoD(ancho)
+    Pos(avIni, caIni)
+    EnviarMensaje(quienSoy, jefe)
+  fin
+  robot jugadorCuatro
+  variables
+    quienSoy:numero
+    ancho:numero
+    avenida:numero
+    avIni, caIni:numero
+    f:numero
+  comenzar
+    f:=0
+    avIni:=PosAv
+    caIni:=PosCa
+    RecibirMensaje(ancho, jefe)
+    RecibirMensaje(avenida, jefe)
+    RecibirMensaje(quienSoy, robot3)
+    Pos(5, 40)
+    juntarFlores(f)
+    Pos(avenida, 30)
+    hacerCuadradoD(ancho)
+    Pos(avIni, caIni)
+    EnviarMensaje(quienSoy, jefe)
+  fin
+  robot coordinador
+  variables
+    ancho:numero
+    avenida:numero
+    equipo:numero
+    ganador:numero
+  comenzar
+    Random(ancho, 1, 5)
+    Random(avenida, 1, 95)
+    EnviarMensaje(1, robot1)
+    EnviarMensaje(2, robot3)
+    EnviarMensaje(ancho, robot1)
+    EnviarMensaje(ancho, robot2)
+    EnviarMensaje(ancho, robot3)
+    EnviarMensaje(ancho, robot4)
+    EnviarMensaje(avenida, robot1)
+    EnviarMensaje(avenida, robot2)
+    EnviarMensaje(avenida, robot3)
+    EnviarMensaje(avenida, robot4)
+    ganador:=0
+    repetir 2
+      RecibirMensaje(equipo, *)
+      si (ganador = 0) 
+        ganador:= equipo
+    Informar(ganador) 
+  fin
+variables
+  robot1: jugadorUno
+  robot2: jugadorDos
+  robot3: jugadorTres
+  robot4: jugadorCuatro
+  jefe:coordinador
+comenzar
+  AsignarArea(robot1, areaUno)
+  AsignarArea(robot2, areaUno)
+  AsignarArea(robot3, areaDos)
+  AsignarArea(robot4, areaDos)
+  AsignarArea(robot1, areaInicio)
+  AsignarArea(robot2, areaInicio)
+  AsignarArea(robot3, areaInicio)
+  AsignarArea(robot4, areaInicio)
+  AsignarArea(jefe, areaInicio)
+  Iniciar(robot1, 1, 1)
+  Iniciar(robot2, 2, 2)
+  Iniciar(robot3, 3, 3)
+  Iniciar(robot4, 4, 4)
+  Iniciar(jefe, 5, 5)
+fin
