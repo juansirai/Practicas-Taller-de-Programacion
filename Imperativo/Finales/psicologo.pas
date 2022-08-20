@@ -132,11 +132,27 @@ begin
 	end;
 end;
 
+{c) Dado un dni, aumentar el costo abonado por sesión en un monto recibido}
+procedure aumentarCostoInd(var a:arbol; p:integer; monto:real);
+begin
+	if(a<> nil) then begin
+		if(a^.elemento.dni=p) then
+			a^.elemento.costo+=monto
+		else begin
+			if(p<a^.elemento.dni) then
+				aumentarCostoInd(a^.hi, p, monto)
+			else
+				aumentarCostoInd(a^.hd, p, monto)
+		end;
+	end;
+end;
+
 VAR
 	a:arbol;
 	pri, ult:lista;
 	num1, num2:integer;
 	monto:real;
+	p:integer;
 BEGIN
 	a:=nil; pri:=nil;ult:=nil;
 	crearArbol(a);
@@ -147,5 +163,9 @@ BEGIN
 	imprimirLista(pri);
 	write('Ingrese el monto en el que desea aumentar el costo: '); readln(monto);
 	aumentarCosto(a, monto);
+	imprimirArbol(a);
+	write('DNI paciente a aumentar monto: ');readln(p);
+	write('Monto a aumentar: ');readln(monto);
+	aumentarCostoInd(a, p, monto);
 	imprimirArbol(a);
 END.
