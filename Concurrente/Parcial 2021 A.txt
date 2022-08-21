@@ -1,0 +1,150 @@
+{
+Dos robots trabajadores deben recorrer el perímetro de un rectángulo asignado. Durante el
+recorrido deben ir recolectando todas las flores y papeles que encuentren. Al finalizar cada uno
+de los lados del rectángulo, los robots deben depositar todos los objetos recolectados hasta el
+momento: las flores en la esquina (21,21) y los papeles en (22,22). Las flores y los papeles
+deben ser depositados de a uno. También en este momento deben informar al coordinador la
+cantidad de objetos recolectados en el lado.
+Un robot coordinador determina al azar el alto y el ancho del rectángulo que debe realizar cada
+uno de los robot recolectores dentro del área de trabajo correspondiente. El coordinador, quien
+debe llevar la contabilidad de los objetos recolectados de cada robot, debe determinar e informar
+cuál fue el robot que más objetos recolectó en total.
+El área de trabajo del robot 1 es (1,1,20,20), el área de trabajo del robot 2 es (21,1,40,20). El
+coordinador inicia en (23,23); robot 1 en (1,1); robot 2 en (21,1)
+}
+
+
+programa parcial
+procesos
+  proceso juntarFlores(ES f:numero)
+  comenzar
+    mientras HayFlorEnLaEsquina
+      tomarFlor
+      f := f+1
+  fin
+  proceso juntarPapeles(ES p:numero)
+  comenzar
+    mientras HayPapelEnLaEsquina
+      tomarPapel
+      p := p+1
+  fin
+  proceso hacerLado(ES p:numero; ES f:numero; E largo:numero)
+  comenzar
+    repetir largo
+      juntarFlores(f)
+      juntarPapeles(p)
+      mover
+  fin
+  proceso depositarFlores(ES f:numero; E ca:numero; E av:numero)
+  variables
+    caAct:numero
+    avAct:numero
+  comenzar
+    caAct:= PosCa
+    avAct:= PosAv
+    repetir f
+      BloquearEsquina(av, ca)
+      Pos(av, ca)
+      depositarFlor
+      f := f - 1
+      Pos(avAct, caAct)
+      LiberarEsquina(av, ca)
+  fin
+  proceso depositarPapeles(ES p:numero; E ca:numero; E av:numero)
+  variables
+    caAct:numero
+    avAct: numero
+  comenzar
+    caAct:= PosCa
+    avAct:= PosAv
+    repetir p
+      BloquearEsquina(av,ca)
+      Pos(av, ca)
+      depositarPapel
+      p := p - 1
+      Pos(avAct, caAct)
+      LiberarEsquina(av, ca)
+  fin
+areas
+  areaUno: AreaP(1, 1, 20, 20)
+  areaDos: AreaP(21, 1, 40, 20)
+  areaCord: AreaP(23, 23, 23, 23)
+  areaDeposito: AreaPC(21, 21, 22, 22)
+robots
+  robot jugador
+  variables
+    quienSoy:numero
+    f:numero
+    p:numero
+    total : numero
+    largo, ancho:numero
+  comenzar
+    p:= 0
+    f:= 0
+    total:= 0
+    RecibirMensaje(quienSoy, jefe)
+    RecibirMensaje(largo, jefe)
+    RecibirMensaje(ancho, jefe)
+    repetir 2
+      hacerLado(p, f, largo)
+      total:= p + f
+      EnviarMensaje(quienSoy, jefe)
+      EnviarMensaje( total, jefe)
+      depositarPapeles(p, 22, 22)
+      depositarFlores(f, 21, 21)
+      derecha
+      hacerLado(p, f, ancho)
+      total:= p+f
+      EnviarMensaje(quienSoy, jefe)
+      EnviarMensaje(total, jefe)
+      depositarPapeles(p, 22, 22)
+      depositarFlores(f, 21, 21)
+      derecha
+  fin
+  robot coordinador
+  variables
+    largo, ancho: numero
+    total1, total2:numero
+    cantidad:numero
+    numRob:numero
+  comenzar
+    EnviarMensaje(1, robot1)
+    EnviarMensaje(2, robot2)
+    Random(largo, 1, 19)
+    EnviarMensaje(largo, robot1)
+    EnviarMensaje(largo, robot2)
+    Random(ancho, 1, 20)
+    EnviarMensaje(ancho, robot1)
+    EnviarMensaje(ancho, robot2)
+    total1:= 0
+    total2 := 0
+    cantidad := 0
+    repetir 8
+      RecibirMensaje(numRob, *)
+      si(numRob = 1)
+        RecibirMensaje(cantidad, robot1)
+        total1 := total1 + cantidad
+      sino
+        RecibirMensaje(cantidad, robot2)
+        total2 := total2 + cantidad
+    si(total1 > total2)
+      Informar(1)
+    sino
+      si(total2 > total1)
+        Informar(2)
+      sino
+        Intormar(0)
+  fin
+variables
+  jefe: coordinador
+  robot1, robot2 : jugador
+comenzar
+  AsignarArea(robot1, areaUno)
+  AsignarArea(robot2, areaDos)
+  AsignarArea(jefe, areaCord)
+  AsignarArea(robot1, areaDeposito)
+  AsignarArea(robot2, areaDeposito)
+  Iniciar(robot1, 1, 1)
+  Iniciar(robot2, 21, 1)
+  Iniciar(jefe, 23, 23) 
+fin
