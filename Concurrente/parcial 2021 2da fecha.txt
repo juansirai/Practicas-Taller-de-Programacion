@@ -1,0 +1,150 @@
+{En la ciudad existen 2 robots corredores, un robot jefe y un robot limpiador.
+- Los corredores corren cada uno por una avenida diferente con el objetivo de
+pasar la calle 40. Para esto cada corredor deberá calcular valores random entre
+1 y 6 y avanzar esa cantidad de pasos. Esto lo deberá repetir hasta alcanzar su
+objetivo (superar la calle 40). Cuando un corredor termina deberá avisar al jefe e
+indicarle cuántas de las esquinas por las que pasó tenían al menos 1 flor.
+- El jefe debe informar qué robot corredor es el último en terminar y la cantidad de
+esquinas que este contó.
+- El limpiador debe juntar todos los papeles y flores de la calle 20.
+El robot limpiador, comienza en la esquina (1, 20).
+El robot corredor 1 comienza en la esquina (15, 1).
+El robot corredor 2 comienza en la esquina (25, 1).
+El robot jefe está en la esquina (1,1)}
+
+programa parcial
+procesos
+  proceso contarEsquina(ES e:numero)
+  comenzar
+    si HayFlorEnLaEsquina
+      e:= e+1
+  fin
+  proceso limpiar
+  comenzar
+    mientras HayFlorEnLaEsquina
+      tomarFlor
+    mientras HayPapelEnLaEsquina
+      tomarPapel
+  fin
+  proceso hacerCalle
+  comenzar
+    derecha
+    repetir 13
+      limpiar
+      mover
+    {estoy parado en av 14}
+    limpiar
+    BloquearEsquina(15, PosCa)
+    mover
+    limpiar
+    {estoy parado en av 16}
+    mover
+    LiberarEsquina(15, PosCa)
+    repetir 8
+      limpiar
+      mover
+    {quedo en av 24}
+    limpiar
+    BloquearEsquina(25, PosCa)
+    mover
+    limpiar
+    {estoy en av 26}
+    mover
+    LiberarEsquina(25, PosCa)
+    repetir 74
+      limpiar
+      mover
+    limpiar
+  fin
+  proceso hacerAvenida(ES e:numero; E pasos:numero)
+  variables
+    aux:numero
+  comenzar
+    aux:=-1
+    si ((pasos + PosCa) < 20 )
+      repetir pasos
+        contarEsquina(e)
+        mover
+    sino
+      aux:= 20 - PosCa - 1 {pasos que debo hacer para quedar uno antes}
+      pasos:= pasos - aux
+      repetir aux
+        contarEsquina(e)
+        mover
+      BloquearEsquina(PosAv, 20)
+      mover
+      contarEsquina(e)
+      mover
+      LiberarEsquina(PosAv, 20)
+      repetir pasos
+        contarEsquina(e)
+        mover
+  fin
+areas
+  areaUnoA: AreaPC(15, 1, 15, 19)
+  areaUnoB: AreaPC(15, 21, 15, 100)
+  areaDosA: AreaPC(25, 1, 25, 19)
+  areaDosB: AreaPC(25, 21, 25, 100)
+  interseccionUno: AreaPC(15, 20, 15, 20)
+  interseccionDos: AreaPC(25,20,25,20)
+  areaTresA: AreaPC(1, 20, 14, 20)
+  areaTresB: AreaPC(16, 20, 24, 20)
+  areaTresC: AreaPC(26, 20, 100, 20)
+  areaCoord: AreaP(1, 1, 1, 1)
+robots
+  robot limpiador
+  comenzar
+    hacerCalle
+  fin
+  robot corredor
+  variables
+    quienSoy:numero
+    esquinas:numero
+    pasos:numero
+  comenzar
+    esquinas:=0
+    RecibirMensaje(quienSoy, jefe)
+    mientras (PosCa <= 41)
+      Random(pasos, 1, 6)
+      hacerAvenida(esquinas, pasos)
+    EnviarMensaje(quienSoy, jefe)
+    EnviarMensaje(esquinas, jefe)
+  fin
+  robot coordinador
+  variables
+    numRob:numero
+    esquinas:numero
+  comenzar
+    EnviarMensaje(1, robot1)
+    EnviarMensaje(2, robot2)
+    repetir 2
+      RecibirMensaje(numRob, *)
+      si(numRob = 1)
+        RecibirMensaje(esquinas, robot1)
+      sino
+        RecibirMensaje(esquinas, robot2)
+    Informar(numRob)
+    Informar(esquinas)
+  fin
+variables
+  robot1, robot2: corredor
+  robot3: limpiador
+  jefe: coordinador
+comenzar
+  AsignarArea(robot1, areaUnoA)
+  AsignarArea(robot1, interseccionUno)
+  AsignarArea(robot1, areaUnoB)
+  AsignarArea(robot2, areaDosA)
+  AsignarArea(robot2, areaDosB)
+  AsignarArea(robot2, interseccionDos)
+  AsignarArea(robot3, interseccionUno)
+  AsignarArea(robot3, interseccionDos)
+  AsignarArea(robot3, areaTresA)
+  AsignarArea(robot3, areaTresB)  
+  AsignarArea(robot3, areaTresC)
+  AsignarArea(jefe, areaCoord)
+  Iniciar(jefe, 1, 1)
+  Iniciar(robot3, 1, 20)
+  Iniciar(robot1, 15, 1)
+  Iniciar(robot2, 25, 1)
+fin
