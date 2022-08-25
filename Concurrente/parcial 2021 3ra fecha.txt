@@ -1,0 +1,108 @@
+programa parcial
+procesos
+  proceso juntarFlor(ES f:numero; ES exito:boolean)
+  comenzar
+    si HayFlorEnLaEsquina
+      tomarFlor
+      f:= f+1
+    sino
+      exito:=F
+  fin
+  proceso juntarPapel
+  comenzar
+    si HayPapelEnLaEsquina
+      tomarPapel
+  fin
+  proceso accederFuente(ES f:numero; ES exito:boolean)
+  variables
+    caIni, avIni:numero
+  comenzar
+    caIni:= PosCa
+    avIni:= PosAv
+    BloquearEsquina(15, 15)
+    Pos(15, 15)
+    juntarFlor(f, exito)
+    juntarPapel
+    Pos(avIni, caIni)
+    LiberarEsquina(15, 15)
+  fin
+areas
+  areaJuego: AreaPC(14, 14, 16, 16)
+  areaCoord: AreaP(1, 1, 1, 1)
+robots
+  robot jugador
+  variables
+    quienSoy:numero
+    flores:numero
+    exito:boolean
+    continua, miTurno:boolean
+  comenzar
+    flores:=0
+    exito:=V
+    RecibirMensaje(quienSoy, jefe)
+    RecibirMensaje(continua, jefe)
+    mientras (continua) & (exito)
+      RecibirMensaje(miTurno, jefe)
+      si miTurno
+        accederFuente(flores, exito)
+        EnviarMensaje(exito, jefe)
+      RecibirMensaje(continua,jefe)
+    EnviarMensaje(flores, jefe)
+  fin
+  robot coordinador
+  variables
+    intentos, seleccion:numero
+    flores, total:numero
+    continua, hayFlor:boolean
+  comenzar
+    continua:=V
+    EnviarMensaje(1, robot1)
+    EnviarMensaje(2, robot2)
+    EnviarMensaje(3, robot3)
+    flores:=0
+    total:= 0
+    intentos:=15
+    hayFlor:=V
+    mientras (intentos>0) & (hayFlor)
+      EnviarMensaje(continua, robot1)
+      EnviarMensaje(continua, robot2)
+      EnviarMensaje(continua, robot3)
+      Random(seleccion, 1, 3)
+      si seleccion = 1
+        EnviarMensaje(V, robot1)
+        EnviarMensaje(F, robot2)
+        EnviarMensaje(F, robot3)
+      sino
+        si seleccion = 2
+          EnviarMensaje(F, robot1)
+          EnviarMensaje(V, robot2)
+          EnviarMensaje(F, robot3)
+        sino
+          EnviarMensaje(V, robot3)
+          EnviarMensaje(F, robot1)
+          EnviarMensaje(F, robot2)
+      {en todos los casos recibo si hay flor o no}
+      RecibirMensaje(hayFlor, *)
+      intentos:= intentos - 1
+      continua := intentos > 0
+    EnviarMensaje(F, robot1)
+    EnviarMensaje(F, robot2)
+    EnviarMensaje(F, robot3)
+    repetir 3
+      RecibirMensaje(flores, *)
+      total:=total+flores    
+    Informar(total)
+  fin
+variables
+  robot1, robot2, robot3: jugador
+  jefe: coordinador
+comenzar
+  AsignarArea(robot1, areaJuego)
+  AsignarArea(robot2, areaJuego)
+  AsignarArea(robot3, areaJuego)
+  AsignarArea(jefe, areaCoord)
+  Iniciar(jefe, 1, 1)
+  Iniciar(robot1, 14, 15)
+  Iniciar(robot2, 15, 16)
+  Iniciar(robot3, 16, 15)
+fin
