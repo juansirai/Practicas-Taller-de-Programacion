@@ -1,0 +1,117 @@
+programa parcial
+procesos
+  proceso juntarFlor(ES f:numero)
+  comenzar
+    mientras HayFlorEnLaEsquina
+      tomarFlor
+      f := f+1
+  fin
+  proceso juntarPapel
+  comenzar
+    mientras HayPapelEnLaEsquina
+      tomarPapel
+  fin
+  proceso hacerAvenidaFlores(ES f:numero)
+  comenzar
+    repetir 9
+      juntarFlor(f)
+      mover
+    juntarFlor(f)
+  fin
+  proceso hacerAvenidaPapeles
+  comenzar
+    repetir 9
+      juntarPapel
+      mover
+    juntarPapel
+  fin
+  proceso minimo(ES fMin:numero; ES rMin:numero; E flores:numero; E rob:numero)
+  comenzar
+    si(flores<fMin)
+      fMin:= flores
+      rMin:= rob
+  fin
+areas
+  areaUno: AreaP(5, 1, 5, 10)
+  areaDos: AreaP(6, 1, 6, 10)
+  areaTres: AreaP(7, 1, 7, 10)
+  areaCord: AreaP(1, 1, 1, 1)
+robots
+  robot jugador
+  variables
+    quienSoy:numero
+    f:numero
+    caIni, avIni:numero
+    continua:boolean
+  comenzar
+    f:=0
+    continua:= F
+    caIni:= PosCa
+    avIni:= PosAv
+    RecibirMensaje(quienSoy, jefe)
+    hacerAvenidaFlores(f)
+    EnviarMensaje(quienSoy, jefe)
+    EnviarMensaje(f, jefe)
+    RecibirMensaje(continua, jefe)
+    si continua
+      Pos(avIni, caIni)
+      hacerAvenidaPapeles
+      EnviarMensaje(quienSoy, jefe)
+  fin
+  robot coordinador
+  variables
+    numRob:numero
+    flores:numero
+    fMin, rMin:numero
+    ganador:numero
+  comenzar
+    EnviarMensaje(1, robot1)
+    EnviarMensaje(2, robot2)
+    EnviarMensaje(3, robot3)
+    ganador:= -1
+    flores:= 0
+    fMin:= 999
+    rMin:= -1
+    repetir 3
+      RecibirMensaje(numRob, *)
+      si numRob = 1
+        RecibirMensaje(flores, robot1)
+        minimo(fMin, rMin, flores, numRob)
+      sino
+        si numRob = 2
+          RecibirMensaje(flores, robot2)
+          minimo(fMin, rMin, flores, numRob)
+        sino
+          RecibirMensaje(flores, robot3)
+          minimo(fMin, rMin, flores, numRob)
+    si rMin=1
+      EnviarMensaje(V, robot2)
+      EnviarMensaje(V, robot3)
+      EnviarMensaje(F, robot1)
+    si rMin = 2
+      EnviarMensaje(V, robot3)
+      EnviarMensaje(V, robot1)
+      EnviarMensaje(F, robot2)
+    si rMin = 3
+      EnviarMensaje(V, robot1)
+      EnviarMensaje(V, robot2)
+      EnviarMensaje(F, robot3)
+    repetir 2
+      RecibirMensaje(numRob, *)
+      si (ganador = -1)
+        ganador:= numRob 
+    Informar(ganador)
+  fin
+variables
+  robot1, robot2, robot3: jugador
+  jefe: coordinador
+comenzar
+  AsignarArea(robot1, areaUno)
+  AsignarArea(robot2, areaDos)
+  AsignarArea(robot3, areaTres)
+  AsignarArea(jefe, areaCord)
+  Iniciar(robot1, 5, 1)
+  Iniciar(robot2, 6, 1)
+  Iniciar(robot3, 7, 1)
+  Iniciar(jefe, 1, 1)
+fin
