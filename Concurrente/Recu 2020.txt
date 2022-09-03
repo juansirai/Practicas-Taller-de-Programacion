@@ -1,0 +1,108 @@
+programa final
+procesos
+  proceso juntarFlores(ES flores: numero)
+  comenzar
+    mientras HayFlorEnLaEsquina
+      tomarFlor
+      flores := flores +1
+  fin
+  proceso juntarPapeles(ES papeles: numero)
+  comenzar
+    mientras HayPapelEnLaEsquina
+      tomarPapel
+      papeles:= papeles +1
+  fin
+  proceso intentoFlorero(ES flores:numero; E av:numero; E ca:numero)
+  variables
+    caIni, avIni: numero
+  comenzar
+    caIni:= PosCa
+    avIni:= PosAv
+    BloquearEsquina(av, ca)
+    Pos(av, ca)
+    juntarFlores(flores)
+    Pos(avIni, caIni)
+    LiberarEsquina(av, ca)
+  fin
+  proceso intentoPapelero(ES papeles: numero; E av:numero; E ca:numero)
+  variables
+    caIni, avIni: numero
+  comenzar
+    caIni:= PosCa
+    avIni:= PosAv
+    BloquearEsquina(av, ca)
+    Pos(av, ca)
+    juntarPapeles(papeles)
+    Pos(avIni, caIni)
+    LiberarEsquina(av, ca)
+  fin
+areas
+  areaJuego: AreaPC(3, 3, 12, 12)
+  areaInicio: AreaC(1, 1, 7, 1)
+robots
+  robot florero
+  variables
+    flores : numero
+    intentos:numero
+    av, ca:numero
+  comenzar
+    intentos:= 3
+    flores := 0
+    repetir intentos
+      Random(av, 3, 12)
+      Random(ca, 3, 12)
+      intentoFlorero(flores, av, ca)
+    EnviarMensaje(flores, jefe)
+  fin
+  robot papelero
+  variables
+    papeles:numero
+    intentos:numero
+    av, ca: numero
+  comenzar
+    intentos:= 5
+    papeles:=0
+    repetir intentos
+      Random(av, 3, 12)
+      Random(ca, 3, 12)
+      intentoPapelero(papeles, av, ca)
+    EnviarMensaje(papeles, jefe)
+  fin
+  robot coordinador
+  variables
+    ceros:numero
+    objetos: numero
+  comenzar
+    ceros:=0
+    repetir 6
+      RecibirMensaje(objetos, *)
+      si (objetos = 0)
+        ceros := ceros + 1
+    Informar(ceros)
+  fin
+variables
+  robot1, robot2, robot3 : florero
+  robot4,robot5, robot6: papelero
+  jefe: coordinador
+comenzar
+  AsignarArea(robot1, areaJuego)
+  AsignarArea(robot1, areaInicio)
+  AsignarArea(robot2, areaJuego)
+  AsignarArea(robot2, areaInicio)
+  AsignarArea(robot3, areaJuego)
+  AsignarArea(robot3, areaInicio)
+  AsignarArea(robot4, areaInicio)
+  AsignarArea(robot4, areaJuego)
+  AsignarArea(robot5, areaJuego)
+  AsignarArea(robot5, areaInicio)
+  AsignarArea(robot6, areaJuego)
+  AsignarArea(robot6, areaInicio)
+  AsignarArea(jefe, areaInicio)
+  Iniciar(robot1, 1, 1)
+  Iniciar(robot2, 2, 1)
+  Iniciar(robot3, 3, 1)
+  Iniciar(robot4, 4, 1)
+  Iniciar(robot5, 5, 1)
+  Iniciar(robot6, 6, 1)
+  Iniciar(jefe, 7, 1)
+fin
