@@ -1,0 +1,90 @@
+programa parcial
+procesos
+  proceso diezPapeles(ES papeles:numero; ES exito:boolean)
+  variables
+    aux:numero
+  comenzar
+    aux:= 0
+    mientras HayPapelEnLaEsquina & (aux<10)
+      tomarPapel
+      aux:= aux + 1
+    Informar(aux)
+    si aux < 10
+      exito:= F
+    sino
+      papeles:= papeles + aux  
+  fin
+  proceso vaciarBolsa(ES papeles:numero)
+  comenzar
+    mientras HayPapelEnLaBolsa
+      depositarPapel
+      papeles:= papeles - 1
+  fin
+areas
+  inicioUno: AreaP(1, 1, 1, 1)
+  inicioDos: AreaP(2, 2, 2, 2)
+  areaJuego: AreaPC(5, 5, 6, 6)
+robots
+  robot recolector1
+  variables
+    exito, exitoDos:boolean
+    papeles:numero
+    caIni, avIni:numero
+  comenzar
+    caIni:= PosCa
+    avIni:= PosAv
+    exito:= V
+    exitoDos:= V
+    papeles:= 0
+    mientras exito & exitoDos
+      BloquearEsquina(5, 5)
+      Pos(5, 5)
+      diezPapeles(papeles, exito)
+      Pos(avIni, caIni)
+      LiberarEsquina(5, 5)
+      EnviarMensaje(exito, robot2)
+      BloquearEsquina(6, 6)
+      Pos(6, 6)
+      vaciarBolsa(papeles)
+      Pos(avIni, caIni)
+      LiberarEsquina(6, 6)
+      si exito
+        RecibirMensaje(exitoDos, robot2)
+  fin
+  robot recolector2
+  variables
+    exitoUno, exito:boolean
+    papeles: numero
+    caIni, avIni: numero
+  comenzar
+    caIni:= PosCa
+    avIni:= PosAv
+    exito:= V
+    papeles:= 0
+    RecibirMensaje(exitoUno, robot1)
+    mientras exito & exitoUno
+      BloquearEsquina(5, 5)
+      Pos(5, 5)
+      diezPapeles(papeles, exito)
+      Pos(avIni, caIni)
+      LiberarEsquina(5, 5)
+      EnviarMensaje(exito, robot1)
+      BloquearEsquina(6, 6)
+      Pos(6, 6)
+      vaciarBolsa(papeles)
+      Pos(avIni, caIni)
+      LiberarEsquina(6, 6)
+      si exito
+        RecibirMensaje(exitoUno, robot1)
+  fin
+variables
+  robot1: recolector1
+  robot2: recolector2
+comenzar
+  AsignarArea(robot1, inicioUno)
+  AsignarArea(robot2, inicioDos)
+  AsignarArea(robot1, areaJuego)
+  AsignarArea(robot2, areaJuego)
+  Iniciar(robot1, 1, 1)
+  Iniciar(robot2, 2, 2)
+fin
