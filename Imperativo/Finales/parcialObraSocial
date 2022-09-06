@@ -1,0 +1,173 @@
+
+{____________________________________________________________________________
+32) Un psicólogo necesita un sistema para administrar a sus pacientes. De cada paciente
+registra: dni, cód. de paciente, obra social (1: ioma 2: pami 3: osde 4: galeno 5: no tiene) y
+costo abonado por sesión. Implemente un programa que:
+* 
+* a) Genere un ABB ordenado por dni. Para ello, genere información hasta el paciente con
+dni 0.
+A partir del ABB, realice módulos (uno por inciso) para:
+b) Generar una estructura con dni y cód de paciente de los pacientes de ioma, ordenados
+por dni descendente.
+c) Dado un dni, modificar la obra social de dicho paciente a una recibida. Considere que el
+paciente puede no existir.
+NOTA: Realice el programa principal que invoque a los módulos desarrollados}
+
+program practica;
+const
+	CORTE = 0; //DNI DE CORTE
+type
+	os = 1..5;
+	paciente = record
+		dni:integer;
+		cod:integer;
+		obraSocial: os;
+		costo:real;
+	end;
+	
+	abb = ^nodoA;
+	nodoA = record
+		elemento: paciente;
+		hd: abb;
+		hi: abb;
+	end;
+	
+	datoLista = record
+		dni:integer;
+		cod:integer;
+	end;
+	lista = ^nodoL;
+	nodoL = record
+		elemento: datoLista;
+		sig: lista;
+	end;
+	
+procedure cargarPaciente(var p:paciente);
+begin
+	p.dni:= random(200);
+	if(p.dni <> CORTE) then begin
+		p.cod:= random(200);
+		p.obraSocial:= random(5)+1;
+		p.costo:= random * 1000;
+	end;
+end;
+
+procedure arbol(var a:abb; p:paciente);
+begin
+	if(a=nil) then begin
+		new(a);
+		a^.elemento:= p;
+		a^.hd:= nil; a^.hi:=nil;
+	end
+	else begin
+	 //lo reemplazo, para no duplicar..
+		if(a^.elemento.dni = p.dni) then
+			a^.elemento:= p
+	    else begin
+			if(p.dni < a^.elemento.dni) then
+				arbol(a^.hi, p)
+			else
+				arbol(a^.hd, p);
+	    end;
+	end;
+end;
+
+procedure generarArbol(var a:abb);
+var
+	p:paciente;
+begin
+	cargarPaciente(p);
+	while(p.dni <> CORTE) do begin
+		arbol(a, p);
+		cargarPaciente(p);
+	end;
+end;
+
+procedure imprimirArbol(a:abb);
+begin
+	if(a<>nil) then begin
+		imprimirArbol(a^.hi);
+		writeln('DNI: ', a^.elemento.dni, ' Codigo: ', a^.elemento.cod, ' OS: ', a^.elemento.obraSocial,' Costo: ', a^.elemento.costo:1:2);
+		imprimirArbol(a^.hd);
+	end;
+end;
+
+
+{b) Generar una estructura con dni y cód de paciente de los pacientes de ioma, ordenados
+por dni descendente.}
+procedure insertarAdelante(var pri:lista; d:datoLista);
+var
+	nue:lista;
+begin
+	new(nue);
+	nue^.elemento:=d;
+	nue^.sig:=pri;
+	pri:=nue;
+end;
+
+procedure generarLista(var pri:lista; a:abb);
+var
+	aux:datoLista;
+begin
+	if(a<> nil) then begin
+		generarLista(pri, a^.hi);
+		if(a^.elemento.obraSocial = 1) then begin
+			aux.dni:=a^.elemento.dni;
+			aux.cod:= a^.elemento.cod;
+			insertarAdelante(pri, aux);
+		end;
+		generarLista(pri, a^.hd);
+	end;
+end;
+
+procedure imprimirLista(pri:lista);
+begin
+	writeln('------------------------------------------------------');
+	writeln('Imprimimos la lista: ');
+	while(pri<>nil) do begin
+		writeln('DNI: ', pri ^.elemento.dni,' Codigo: ', pri^.elemento.cod);
+		pri:= pri^.sig;
+	end;
+	writeln('------------------------------------------------------');
+end;
+
+{c) Dado un dni, modificar la obra social de dicho paciente a una recibida. Considere que el
+paciente puede no existir.}
+procedure modificarOS(var a:abb; dni:integer; obraSocial:os; var encontre: boolean);
+begin
+	if(a=nil) then
+		encontre:=false
+	else begin
+		if(a<>nil) and not(encontre) then begin
+			if(a^.elemento.dni = dni) then begin
+				a^.elemento.obraSocial:= obraSocial;
+				encontre:= true;
+			end
+			else begin
+				if(a^.elemento.dni<dni) then
+					modificarOS(a^.hd, dni, obraSocial, encontre)
+				else
+					modificarOS(a^.hi, dni, obraSocial, encontre);
+			end;
+		end;
+	end;
+end;
+
+VAR
+	a:abb;
+	pri:lista;
+	encontre:boolean;
+	dni, obrasocial:integer;
+BEGIN
+	pri:=nil;
+	encontre:=false;
+	generarArbol(a);
+	imprimirArbol(a);
+	generarLista(pri, a);
+	imprimirLista(pri);
+	writeln('DNI: ');readln(dni);
+	writeln('OS a modificar: '); readln(obrasocial);
+	modificarOS(a, dni, obrasocial, encontre);
+	writeln('Resultado: ', encontre);
+	imprimirArbol(a);
+END.
